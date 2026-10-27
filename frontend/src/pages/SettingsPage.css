@@ -1,0 +1,1311 @@
+/* =========================================================
+   SETTINGS - GLOBAL THEME VARIABLES
+   Dark mode is DEFAULT
+========================================================= */
+
+:root {
+  --settings-bg: #080b14;
+  --settings-card: #111827;
+  --settings-card-hover: #151d2e;
+
+  --settings-border: rgba(255, 255, 255, 0.08);
+
+  --settings-text: #f8fafc;
+  --settings-text-secondary: #94a3b8;
+  --settings-text-muted: #64748b;
+
+  --settings-accent: #6366f1;
+  --settings-accent-hover: #4f46e5;
+
+  --settings-success: #22c55e;
+  --settings-success-bg: rgba(34, 197, 94, 0.12);
+
+  --settings-warning: #f59e0b;
+  --settings-warning-bg: rgba(245, 158, 11, 0.12);
+
+  --settings-error: #ef4444;
+  --settings-error-bg: rgba(239, 68, 68, 0.12);
+
+  --settings-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+
+/* =========================================================
+   LIGHT MODE
+========================================================= */
+
+[data-theme="light"],
+.theme-light,
+.app-theme.light {
+  --settings-bg: #f5f7fb;
+  --settings-card: #ffffff;
+  --settings-card-hover: #f8fafc;
+
+  --settings-border: #e5e7eb;
+
+  --settings-text: #111827;
+  --settings-text-secondary: #6b7280;
+  --settings-text-muted: #9ca3af;
+
+  --settings-accent: #4f46e5;
+  --settings-accent-hover: #4338ca;
+
+  --settings-success: #059669;
+  --settings-success-bg: #ecfdf5;
+
+  --settings-warning: #c2410c;
+  --settings-warning-bg: #fff7ed;
+
+  --settings-error: #b91c1c;
+  --settings-error-bg: #fef2f2;
+
+  --settings-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.10);
+}
+
+/* =========================================================
+   SETTINGS THEME CLASS SUPPORT
+========================================================= */
+
+.theme-light .settings-page,
+.app-theme.light .settings-page {
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(99, 102, 241, 0.05),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(139, 92, 246, 0.04),
+      transparent 30%
+    ),
+    var(--settings-bg);
+
+  color: var(--settings-text);
+}
+
+.theme-dark .settings-page,
+.app-theme.dark .settings-page {
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(99, 102, 241, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(139, 92, 246, 0.06),
+      transparent 30%
+    ),
+    var(--settings-bg);
+
+  color: var(--settings-text);
+}
+/* =========================================================
+   PAGE
+========================================================= */
+
+.settings-page {
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(99, 102, 241, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(139, 92, 246, 0.06),
+      transparent 30%
+    ),
+    var(--settings-bg);
+
+  color: var(--settings-text);
+
+  padding: 32px;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.settings-header {
+  max-width: 1000px;
+
+  margin: 0 auto 28px;
+}
+
+.settings-back-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--settings-text-secondary);
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  padding: 0;
+
+  margin-bottom: 24px;
+
+  transition: color 0.2s ease;
+}
+
+.settings-back-button:hover {
+  color: var(--settings-text);
+}
+
+.settings-header h1 {
+  margin: 0;
+
+  font-size: 32px;
+
+  font-weight: 700;
+
+  letter-spacing: -0.5px;
+}
+
+.settings-header p {
+  margin: 8px 0 0;
+
+  color: var(--settings-text-secondary);
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.settings-content {
+  max-width: 1000px;
+
+  margin: 0 auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.settings-content {
+  padding-bottom: 40px;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.settings-card {
+  background: var(--settings-card);
+
+  border: 1px solid var(--settings-border);
+
+  border-radius: 16px;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  box-shadow: var(--settings-shadow);
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.settings-card-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  margin-bottom: 24px;
+}
+
+.settings-icon {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 11px;
+
+  background: rgba(99, 102, 241, 0.12);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #818cf8;
+
+  flex-shrink: 0;
+}
+
+.settings-icon.security {
+  background: var(--settings-success-bg);
+
+  color: var(--settings-success);
+}
+
+.appearance-icon {
+  background: rgba(245, 158, 11, 0.12);
+
+  color: #f59e0b;
+}
+
+.settings-card-header h2 {
+  margin: 0;
+
+  font-size: 19px;
+
+  color: var(--settings-text);
+}
+
+.settings-card-header p {
+  margin: 5px 0 0;
+
+  color: var(--settings-text-secondary);
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   EMAIL
+========================================================= */
+
+.email-settings-row {
+  border-top: 1px solid var(--settings-border);
+
+  padding-top: 18px;
+}
+
+.email-details {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  flex-wrap: wrap;
+}
+
+.settings-small-label {
+  display: block;
+
+  color: var(--settings-text-muted);
+
+  font-size: 12px;
+
+  margin-bottom: 5px;
+}
+
+.email-address {
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: var(--settings-text);
+}
+
+.verification-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 7px 11px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.verification-status.verified {
+  background: var(--settings-success-bg);
+
+  color: var(--settings-success);
+}
+
+.verification-status.unverified {
+  background: var(--settings-warning-bg);
+
+  color: var(--settings-warning);
+}
+
+
+/* =========================================================
+   2FA
+========================================================= */
+
+.two-factor-box {
+  border: 1px solid var(--settings-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.two-factor-description { flex: 1; }
+
+.two-factor-title {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.two-factor-title > svg {
+  color: var(--settings-success);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.two-factor-title strong {
+  font-size: 15px;
+  color: var(--settings-text);
+}
+
+.two-factor-title p {
+  margin: 6px 0 0;
+  color: var(--settings-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.two-factor-warning,
+.two-factor-active {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.two-factor-warning {
+  background: var(--settings-warning-bg);
+  color: var(--settings-warning);
+}
+
+.two-factor-active {
+  background: var(--settings-success-bg);
+  color: var(--settings-success);
+}
+
+.two-factor-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 90px;
+}
+
+.toggle-status {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.toggle-status.enabled { color: var(--settings-success); }
+.toggle-status.disabled { color: var(--settings-text-muted); }
+
+.two-factor-toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.two-factor-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.toggle-track {
+  width: 50px;
+  height: 28px;
+  border-radius: 999px;
+  background: #475569;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+
+.two-factor-toggle.enabled .toggle-track { background: #059669; }
+
+.toggle-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.two-factor-toggle.enabled .toggle-thumb {
+  transform: translateX(22px);
+}
+
+
+/* =========================================================
+   TOTP / AUTHENTICATOR SETUP
+   QR = LEFT
+   DETAILS = RIGHT
+   OTP + BUTTONS = BELOW QR
+========================================================= */
+
+.two-factor-setup {
+  margin-top: 20px;
+  padding: 26px;
+  border: 1px solid var(--settings-border);
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(300px, 1.1fr);
+  column-gap: 42px;
+  row-gap: 14px;
+  align-items: start;
+  background: var(--settings-card-hover);
+  box-sizing: border-box;
+}
+
+.two-factor-setup-header {
+  grid-column: 1 / -1;
+  padding-bottom: 4px;
+}
+
+.two-factor-setup-header h3 {
+  margin: 0 0 8px;
+  color: var(--settings-text);
+  font-size: 18px;
+}
+
+.two-factor-setup-header p {
+  margin: 0;
+  color: var(--settings-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* QR stays large on the LEFT */
+.two-factor-qr {
+  grid-column: 1;
+  grid-row: 2 / span 3;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 4px 0 0;
+}
+
+.two-factor-qr img {
+  width: 180px;
+  height: 180px;
+  max-width: 100%;
+  padding: 14px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
+}
+
+/* Manual-key details stay on the RIGHT */
+.two-factor-manual-label {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 4px 0 0;
+  color: var(--settings-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.two-factor-manual-key {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--settings-border);
+  border-radius: 9px;
+  background: var(--settings-card);
+  color: var(--settings-text);
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+/* OTP is BELOW the QR */
+.two-factor-otp-label {
+  grid-column: 1;
+  grid-row: 5;
+  display: block;
+  margin: 4px 0 0;
+  color: var(--settings-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.two-factor-otp-input {
+  grid-column: 1;
+  grid-row: 6;
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--settings-border);
+  border-radius: 9px;
+  background: var(--settings-card);
+  color: var(--settings-text);
+  text-align: center;
+  letter-spacing: 0.30em;
+  font-size: 20px;
+  font-weight: 600;
+  outline: none;
+}
+
+.two-factor-otp-input:focus {
+  border-color: var(--settings-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.two-factor-otp-input::placeholder {
+  color: var(--settings-text-muted);
+  opacity: 1;
+}
+
+/* Verify + Cancel BELOW the OTP */
+.two-factor-setup-actions {
+  grid-column: 1;
+  grid-row: 7;
+  display: flex;
+  gap: 10px;
+  margin: 0 0 2px;
+}
+
+.two-factor-verify-button,
+.two-factor-cancel-button {
+  min-height: 40px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.two-factor-verify-button {
+  border: 1px solid var(--settings-accent);
+  background: var(--settings-accent);
+  color: #ffffff;
+}
+
+.two-factor-verify-button:hover:not(:disabled) {
+  background: var(--settings-accent-hover);
+  transform: translateY(-1px);
+}
+
+.two-factor-cancel-button {
+  border: 1px solid var(--settings-border);
+  background: transparent;
+  color: var(--settings-text);
+}
+
+.two-factor-cancel-button:hover:not(:disabled) {
+  background: var(--settings-card);
+}
+
+.two-factor-verify-button:disabled,
+.two-factor-cancel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+
+/* =========================================================
+   HOW 2FA WORKS
+========================================================= */
+
+.two-factor-steps {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.two-factor-step {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--settings-border);
+  border-radius: 10px;
+  background: var(--settings-card-hover);
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.13);
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.two-factor-step strong {
+  font-size: 14px;
+  color: var(--settings-text);
+}
+
+.two-factor-step p {
+  margin: 5px 0 0;
+  color: var(--settings-text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   APPEARANCE
+========================================================= */
+
+.appearance-options {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 14px;
+}
+
+.theme-option {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 16px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--settings-border);
+
+  background: var(--settings-card-hover);
+
+  color: var(--settings-text);
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.theme-option:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.theme-option.selected {
+  border-color: var(--settings-accent);
+
+  background: rgba(99, 102, 241, 0.10);
+}
+
+.theme-option-icon {
+  width: 40px;
+
+  height: 40px;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.dark-icon {
+  background: #1e293b;
+
+  color: #e2e8f0;
+}
+
+.light-icon {
+  background: #fef3c7;
+
+  color: #d97706;
+}
+
+.theme-option-content {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.theme-option-content strong {
+  font-size: 14px;
+}
+
+.theme-option-content span {
+  font-size: 12px;
+
+  color: var(--settings-text-secondary);
+}
+
+.theme-check {
+  margin-left: auto;
+
+  color: var(--settings-accent);
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.settings-message {
+  max-width: 1000px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 12px 15px;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+}
+
+.settings-message.success {
+  background: var(--settings-success-bg);
+
+  color: var(--settings-success);
+
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.settings-message.error {
+  background: var(--settings-error-bg);
+
+  color: var(--settings-error);
+
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.message-close {
+  margin-left: auto;
+
+  border: none;
+
+  background: transparent;
+
+  color: currentColor;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.logout-card {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.logout-card h2 {
+  margin: 0;
+
+  font-size: 17px;
+}
+
+.logout-card p {
+  margin: 6px 0 0;
+
+  color: var(--settings-text-secondary);
+
+  font-size: 14px;
+}
+
+.logout-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 15px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+
+  border-radius: 8px;
+
+  background: var(--settings-error-bg);
+
+  color: var(--settings-error);
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.logout-button:hover {
+  transform: translateY(-1px);
+
+  background: rgba(239, 68, 68, 0.18);
+}
+
+
+/* =========================================================
+   LOGOUT CONFIRMATION MODAL
+========================================================= */
+
+.logout-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.65);
+
+  backdrop-filter: blur(6px);
+}
+
+.logout-modal {
+  width: 100%;
+
+  max-width: 420px;
+
+  padding: 28px;
+
+  border-radius: 18px;
+
+  background: var(--settings-card);
+
+  border: 1px solid var(--settings-border);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45);
+
+  text-align: center;
+
+  animation: modalAppear 0.2s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+
+    transform: scale(0.96) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: scale(1) translateY(0);
+  }
+}
+
+.logout-modal-icon {
+  width: 50px;
+
+  height: 50px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: var(--settings-error-bg);
+
+  color: var(--settings-error);
+}
+
+.logout-modal h2 {
+  margin: 0;
+
+  font-size: 20px;
+}
+
+.logout-modal p {
+  margin: 10px 0 24px;
+
+  color: var(--settings-text-secondary);
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+.logout-modal-actions {
+  display: flex;
+
+  gap: 10px;
+
+  justify-content: center;
+}
+
+.logout-cancel-button,
+.logout-confirm-button {
+  min-width: 110px;
+
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.logout-cancel-button {
+  border: 1px solid var(--settings-border);
+
+  background: transparent;
+
+  color: var(--settings-text);
+}
+
+.logout-cancel-button:hover {
+  background: var(--settings-card-hover);
+}
+
+.logout-confirm-button {
+  border: 1px solid var(--settings-error);
+
+  background: var(--settings-error);
+
+  color: white;
+}
+
+.logout-confirm-button:hover {
+  opacity: 0.9;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.settings-loading {
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: var(--settings-text-secondary);
+
+  background: var(--settings-bg);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .settings-page {
+    padding: 20px;
+  }
+
+  .settings-header h1 {
+    font-size: 27px;
+  }
+
+  .two-factor-box {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .two-factor-control {
+    flex-direction: row;
+
+    justify-content: space-between;
+  }
+
+  .two-factor-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .appearance-options {
+    grid-template-columns: 1fr;
+  }
+
+  .logout-card {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .logout-button {
+    justify-content: center;
+  }
+
+  .email-details {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .logout-modal-actions {
+    flex-direction: column;
+  }
+
+  .logout-cancel-button,
+  .logout-confirm-button {
+    width: 100%;
+  }
+}
+/* =========================================================
+   SETTINGS PAGE SCROLL
+========================================================= */
+
+.settings-page {
+  min-height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding-bottom: 90px;
+  overscroll-behavior-y: contain;
+}
+
+/* Smooth scrollbar */
+.settings-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settings-page::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+}
+
+.settings-page::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+/* Firefox */
+.settings-page {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+/* =========================================================
+   SETTINGS TOAST / POPUP MESSAGE
+   Stays visible while the Settings page is scrolled
+========================================================= */
+
+.settings-message {
+  position: fixed;
+
+  top: 82px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: min(720px, calc(100vw - 40px));
+
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 14px 18px;
+
+  border-radius: 10px;
+
+  box-sizing: border-box;
+
+  z-index: 9999;
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.25);
+
+  animation: settingsToastIn 0.25s ease-out;
+}
+
+/* Success */
+
+.settings-message.success {
+  background: var(--settings-success-bg);
+  border: 1px solid var(--settings-success);
+  color: var(--settings-success);
+}
+
+/* Error */
+
+.settings-message.error {
+  background: var(--settings-error-bg);
+  border: 1px solid var(--settings-error);
+  color: var(--settings-error);
+}
+
+/* Message text */
+
+.settings-message span {
+  flex: 1;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  line-height: 1.4;
+}
+
+/* Close button */
+
+.settings-message .message-close {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: inherit;
+
+  cursor: pointer;
+
+  padding: 0;
+}
+
+.settings-message .message-close:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+/* Popup animation */
+
+@keyframes settingsToastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .settings-message {
+    top: 70px;
+
+    width: calc(100vw - 24px);
+
+    padding: 12px 14px;
+  }
+
+  .settings-message span {
+    font-size: 13px;
+  }
+}
