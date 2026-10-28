@@ -52,12 +52,8 @@ import {
   Lightbulb,
   FileDown,
   PanelLeftClose,
+  Menu,
   PanelLeftOpen,
-  Plus,
-  MoreVertical,
-  Pin,
-  PinOff,
-  Pencil,
   Check,
   Eye,
   EyeOff,
@@ -95,7 +91,7 @@ const PARTY_FILTER_CLEAR_ALL_STYLES = `
     background: var(--accent-soft, rgba(99, 102, 241, 0.12));
   }
 `;
-import Chat from "./Chat"; // adjust path if Chat.jsx lives elsewhere
+import Chat, { RecentsSection } from "./Chat"; // adjust path if Chat.jsx lives elsewhere
 import ProfilePage from "./Profile";
 import SettingsPage from "./SettingsPage";
 
@@ -204,6 +200,8 @@ export default function Dashboard({
   const [activeTab, setActiveTab] = useState("dashboard");
   // Sidebar collapse (icon-only rail)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Mobile only: the sidebar becomes a slide-in drawer opened from the top bar.
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Profile (rename + change password). displayName is tracked locally
   // (fetched from GET /auth/me) so the sidebar label updates instantly
@@ -1152,7 +1150,16 @@ export default function Dashboard({
   )}
 </AnimatePresence>
       {/* ── Sidebar ── */}
-      <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
+      {mobileNavOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileNavOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`sidebar ${sidebarCollapsed ? "collapsed" : ""} ${mobileNavOpen ? "mobile-open" : ""}`}
+      >
         <div className="sidebar-header">
           <div className="sidebar-header-left">
             <div className="sidebar-logo">
@@ -1181,7 +1188,7 @@ export default function Dashboard({
         </div>
 
         {/* Navigation */}
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" onClick={() => setMobileNavOpen(false)}>
           <button
             className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
             onClick={() => setActiveTab("dashboard")}
@@ -1216,10 +1223,16 @@ export default function Dashboard({
             sessions={historySessions}
             loading={historyLoading}
             activeSessionId={sessionId}
-            onSelect={handleSelectSession}
+            onSelect={(sid) => {
+              setMobileNavOpen(false);
+              handleSelectSession(sid);
+            }}
             onDelete={handleDeleteSession}
             onRename={handleRenameSession}
-            onNewChat={handleStartNewChat}
+            onNewChat={() => {
+              setMobileNavOpen(false);
+              handleStartNewChat();
+            }}
           />
         )}
 
@@ -1310,6 +1323,10 @@ export default function Dashboard({
           activeTab={activeTab}
           initials={initials}
           onNavigate={setActiveTab}
+          onMenuClick={() => {
+            setSidebarCollapsed(false);
+            setMobileNavOpen(true);
+          }}
           lastDashboardUpdated={lastDashboardUpdated}
           isScanning={isScanning}
           schemaProgress={schemaProgress}
@@ -1615,6 +1632,7 @@ function TopBar({
   activeTab,
   initials,
   onNavigate,
+  onMenuClick,
   lastDashboardUpdated,
   isScanning,
   schemaProgress,
@@ -1772,6 +1790,15 @@ function TopBar({
 
   return (
     <header className="global-topbar">
+      <button
+        type="button"
+        className="icon-btn topbar-menu-btn"
+        onClick={onMenuClick}
+        aria-label="Open menu"
+      >
+        <Menu size={18} />
+      </button>
+
       <div className="topbar-spacer" />
 
       <div className="topbar-actions">
@@ -3183,287 +3210,6 @@ function InsightsTab({ onAskInsight }) {
 }
 
 
-/* ════════════════════════════════════════════
-   Recents (sidebar) — replaces the old History page.
-   Only rendered while activeTab === "chat".
-   ════════════════════════════════════════════ */
-const RECENTS_COLLAPSED_LIMIT = 4;
-const PINNED_STORAGE_KEY = "epicor-pinned-sessions";
-
-function RecentsSection({
-  sessions,
-  loading,
-  activeSessionId,
-  onSelect,
-  onDelete,
-  onRename,
-  onNewChat,
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  // >>> ADDED: pinned session ids, persisted locally so pins survive a
-  // refresh. TODO (backend): move this to the session record itself once
-  // there's an API field for it — this is a client-only stand-in.
-  const [pinnedIds, setPinnedIds] = useState(() => {
-    if (typeof window === "undefined") return new Set();
-    try {
-      const saved = window.localStorage.getItem(PINNED_STORAGE_KEY);
-      return saved ? new Set(JSON.parse(saved)) : new Set();
-    } catch {
-      return new Set();
-    }
-  });
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(
-        PINNED_STORAGE_KEY,
-        JSON.stringify(Array.from(pinnedIds)),
-      );
-    } catch {
-      /* ignore */
-    }
-  }, [pinnedIds]);
-
-  const handleTogglePin = (sid) => {
-    setPinnedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(sid)) next.delete(sid);
-      else next.add(sid);
-      return next;
-    });
-  };
-
-  // >>> ADDED: which item's 3-dot menu is open, and inline-rename state
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const [renamingId, setRenamingId] = useState(null);
-  const [renameValue, setRenameValue] = useState("");
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    if (!openMenuId) return;
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openMenuId]);
-
-  const startRename = (session) => {
-    setRenamingId(session.id);
-    setRenameValue(session.title || "");
-    setOpenMenuId(null);
-  };
-
-  const confirmRename = (sid) => {
-    if (renameValue.trim()) onRename?.(sid, renameValue);
-    setRenamingId(null);
-  };
-
-  const cancelRename = () => {
-    setRenamingId(null);
-    setRenameValue("");
-  };
-
-  const sorted = (sessions || [])
-    .slice()
-    .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-
-  const pinnedSessions = sorted.filter((s) => pinnedIds.has(s.id));
-  const unpinnedSessions = sorted.filter((s) => !pinnedIds.has(s.id));
-
-  const hasMore = unpinnedSessions.length > RECENTS_COLLAPSED_LIMIT;
-  const visibleSessions = expanded
-    ? unpinnedSessions
-    : unpinnedSessions.slice(0, RECENTS_COLLAPSED_LIMIT);
-  const groups = groupSessionsByRecency(visibleSessions);
-  if (pinnedSessions.length > 0) {
-    groups.unshift({ label: "Pinned", items: pinnedSessions });
-  }
-
-  const renderItem = (session) => {
-    const isActive = activeSessionId === session.id;
-    const isPinned = pinnedIds.has(session.id);
-    const isRenaming = renamingId === session.id;
-    const isMenuOpen = openMenuId === session.id;
-
-    return (
-      <div
-        key={session.id}
-        className={`recents-item ${isActive ? "active" : ""} ${isPinned ? "is-pinned" : ""}`}
-        onClick={() => !isRenaming && onSelect(session.id)}
-        title={isRenaming ? undefined : session.title || "Untitled chat"}
-      >
-        {isRenaming ? (
-          <input
-            type="text"
-            className="recents-rename-input"
-            value={renameValue}
-            autoFocus
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => setRenameValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") confirmRename(session.id);
-              if (e.key === "Escape") cancelRename();
-            }}
-          />
-        ) : (
-          <span className="recents-item-title">
-            {isPinned && <Pin size={11} className="recents-pin-icon" />}
-            {session.title || "Untitled chat"}
-          </span>
-        )}
-
-        {isRenaming ? (
-          <div className="recents-item-actions">
-            <button
-              type="button"
-              className="recents-item-inline-btn"
-              title="Save"
-              aria-label="Save name"
-              onClick={(e) => { e.stopPropagation(); confirmRename(session.id); }}
-            >
-              <Check size={13} />
-            </button>
-            <button
-              type="button"
-              className="recents-item-inline-btn"
-              title="Cancel"
-              aria-label="Cancel rename"
-              onClick={(e) => { e.stopPropagation(); cancelRename(); }}
-            >
-              <X size={13} />
-            </button>
-          </div>
-        ) : (
-          <div className="recents-item-menu-wrap" ref={isMenuOpen ? menuRef : null}>
-            <button
-              type="button"
-              className="recents-item-menu-btn"
-              title="More options"
-              aria-label="More options"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenMenuId(isMenuOpen ? null : session.id);
-              }}
-            >
-              <MoreVertical size={14} />
-            </button>
-
-            {isMenuOpen && (
-              <div className="recents-item-dropdown" onClick={(e) => e.stopPropagation()}>
-                <button type="button" onClick={() => { handleTogglePin(session.id); setOpenMenuId(null); }}>
-                  {isPinned ? <PinOff size={13} /> : <Pin size={13} />}
-                  {isPinned ? "Unpin" : "Pin"}
-                </button>
-                <button type="button" onClick={() => startRename(session)}>
-                  <Pencil size={13} />
-                  Rename
-                </button>
-                <button
-                  type="button"
-                  className="is-danger"
-                  onClick={() => { setOpenMenuId(null); onDelete(session.id); }}
-                >
-                  <Trash2 size={13} />
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <div className="recents-section">
-      <div className="recents-section-header">
-        <h4 className="status-section-title">RECENTS</h4>
-        <button
-          type="button"
-          className="recents-new-btn"
-          onClick={onNewChat}
-          data-tooltip="New chat"
-          aria-label="New chat"
-        >
-          <Plus size={14} />
-        </button>
-      </div>
-
-      <div className={`recents-list ${expanded ? "is-expanded" : ""}`}>
-        {loading ? (
-          <div className="recents-empty">Loading…</div>
-        ) : sessions.length === 0 ? (
-          <div className="recents-empty">No conversations yet</div>
-        ) : (
-          groups.map(
-            (group) =>
-              group.items.length > 0 && (
-                <div className="recents-group" key={group.label}>
-                  <span className="recents-group-label">{group.label}</span>
-                  {group.items.map(renderItem)}
-                </div>
-              ),
-          )
-        )}
-      </div>
-
-      {!loading && hasMore && (
-        <button
-          type="button"
-          className="recents-expand-toggle"
-          onClick={() => setExpanded((e) => !e)}
-        >
-          <span>{expanded ? "Show less" : "Show more"}</span>
-          <ChevronDown
-            size={14}
-            style={{
-              transform: expanded ? "rotate(180deg)" : "rotate(0)",
-              transition: "transform 0.2s",
-            }}
-          />
-        </button>
-      )}
-    </div>
-  );
-}
-
-function groupSessionsByRecency(sessions) {
-  const now = new Date();
-  const startOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-  );
-  const startOfYesterday = new Date(startOfToday);
-  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-  const sevenDaysAgo = new Date(startOfToday);
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  const groups = [
-    { label: "Today", items: [] },
-    { label: "Yesterday", items: [] },
-    { label: "Previous 7 Days", items: [] },
-    { label: "Older", items: [] },
-  ];
-
-  (sessions || []).forEach((s) => {
-    const d = new Date(s.updated_at);
-    if (d >= startOfToday) groups[0].items.push(s);
-    else if (d >= startOfYesterday) groups[1].items.push(s);
-    else if (d >= sevenDaysAgo) groups[2].items.push(s);
-    else groups[3].items.push(s);
-  });
-
-  return groups;
-}
-
-/* ══════ Sub-Components ══════ */
-
-// eslint-disable-next-line no-unused-vars
 function StatusCard({ icon, label, status, detail }) {
   const dotClass =
     status === "connected"

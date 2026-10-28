@@ -1197,7 +1197,7 @@
 .settings-message {
   position: fixed;
 
-  top: 82px;
+  top: 16px;
   left: 50%;
 
   transform: translateX(-50%);
@@ -1228,7 +1228,8 @@
 /* Success */
 
 .settings-message.success {
-  background: var(--settings-success-bg);
+  background-color: var(--settings-card);
+  background-image: linear-gradient(var(--settings-success-bg), var(--settings-success-bg));
   border: 1px solid var(--settings-success);
   color: var(--settings-success);
 }
@@ -1236,7 +1237,8 @@
 /* Error */
 
 .settings-message.error {
-  background: var(--settings-error-bg);
+  background-color: var(--settings-card);
+  background-image: linear-gradient(var(--settings-error-bg), var(--settings-error-bg));
   border: 1px solid var(--settings-error);
   color: var(--settings-error);
 }

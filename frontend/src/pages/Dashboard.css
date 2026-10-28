@@ -269,278 +269,6 @@
   justify-content: center;
 }
 
-/* ── Recents (sidebar, Chat tab only) ── */
-.recents-section {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  flex: 1;
-  gap: var(--space-sm);
-}
-.recents-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.recents-new-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-.recents-new-btn:hover {
-  background: var(--bg-glass-hover);
-  color: var(--accent-primary-light);
-}
-
-/* >>> ADDED: themed tooltip for the "New chat" plus button — replaces the
-   native browser title tooltip with one that matches the app's palette
-   (light/dark aware via the CSS variables already scoped on .dashboard). */
-.recents-new-btn::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  padding: 5px 9px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: var(--shadow-sm);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-4px);
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-  pointer-events: none;
-  z-index: 30;
-}
-.recents-new-btn::before {
-  content: '';
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  background: var(--bg-card);
-  border-left: 1px solid var(--border-subtle);
-  border-top: 1px solid var(--border-subtle);
-  transform: rotate(45deg);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.15s ease, visibility 0.15s;
-  pointer-events: none;
-  z-index: 30;
-}
-.recents-new-btn:hover::after,
-.recents-new-btn:hover::before {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-.recents-list {
-  overflow-y: auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding-right: 2px;
-}
-/* Collapsed (6-item) view: only as tall as its content, no scrollbar */
-.recents-list:not(.is-expanded) {
-  flex: 0 1 auto;
-  overflow: auto;
-}
-/* Expanded view: scrolls within the remaining sidebar space, same as before */
-.recents-list.is-expanded {
-  flex: 1 1 auto;
-}
-.recents-expand-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px;
-  margin-top: 2px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-.recents-expand-toggle:hover {
-  background: var(--bg-glass-hover);
-  color: var(--text-primary);
-}
-.recents-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.recents-group-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  padding: 4px 10px;
-}
-.recents-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-.recents-item:hover {
-  background: var(--bg-glass-hover);
-}
-.recents-item.active {
-  background: rgba(99, 102, 241, 0.12);
-}
-.recents-item-title {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.recents-item.active .recents-item-title {
-  color: var(--accent-primary-light);
-  font-weight: 600;
-}
-.recents-item.is-pinned .recents-item-title {
-  color: var(--text-primary);
-}
-.recents-pin-icon {
-  flex-shrink: 0;
-  margin-right: 5px;
-  vertical-align: -1px;
-  color: var(--accent-primary-light);
-}
-
-/* 3-dot menu (replaces the old always-hidden delete icon) */
-.recents-item-menu-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-.recents-item-menu-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.recents-item:hover .recents-item-menu-btn,
-.recents-item-menu-wrap:has(.recents-item-dropdown) .recents-item-menu-btn {
-  display: flex;
-}
-.recents-item-menu-btn:hover {
-  background: var(--bg-glass-hover);
-  color: var(--text-primary);
-}
-.recents-item-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  min-width: 148px;
-  padding: 5px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
-  background: var(--bg-secondary, #14141e);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-.recents-item-dropdown button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 9px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-align: left;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.recents-item-dropdown button:hover {
-  background: var(--bg-glass-hover);
-  color: var(--text-primary);
-}
-.recents-item-dropdown button.is-danger:hover {
-  color: var(--error);
-  background: rgba(239, 68, 68, 0.12);
-}
-
-/* Inline rename */
-.recents-rename-input {
-  flex: 1;
-  min-width: 0;
-  padding: 3px 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--accent-primary-light);
-  background: var(--bg-primary, transparent);
-  font-size: 0.8125rem;
-  color: var(--text-primary);
-  outline: none;
-}
-.recents-item-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-}
-.recents-item-inline-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.recents-item-inline-btn:hover {
-  background: var(--bg-glass-hover);
-  color: var(--text-primary);
-}
-.recents-empty {
-  padding: 10px;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-}
-
 /* Skeleton Loaders */
 .skeleton {
   background: var(--bg-tertiary);
@@ -2451,9 +2179,6 @@
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
   .msg-bubble {
     max-width: 90%;
   }
@@ -3207,4 +2932,66 @@
 .dashboard:not(.dark) .finance-filter-input[type="date"]::-webkit-calendar-picker-indicator {
   filter: none;
   opacity: 0.78;
+}
+
+/* =========================================================
+   RESPONSIVE — mobile navigation drawer
+   Below 768px the sidebar slides in from the left (opened with the
+   menu button in the top bar) instead of disappearing.
+   ========================================================= */
+.topbar-menu-btn {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar,
+  .sidebar.collapsed {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 280px;
+    min-width: 280px;
+    max-width: 85vw;
+    z-index: 1200;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.45);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-collapse-btn {
+    display: none;
+  }
+
+  .topbar-menu-btn {
+    display: inline-flex;
+  }
+
+  .global-topbar {
+    padding: var(--space-sm) var(--space-md);
+    gap: 8px;
+  }
+
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
 }

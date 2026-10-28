@@ -128,7 +128,7 @@ if (phone && !/^[+\d][\d\s().-]{6,19}$/.test(phone)) {
       <header className="profile-page-header">
         <div>
           <button type="button" className="profile-back-btn" onClick={onBack}>
-            <ArrowLeft size={16} /> Back to Dashboard
+            <ArrowLeft size={16} /> 
           </button>
           <h1>Profile</h1>
           <p>Manage your profile information and account password.</p>
@@ -165,7 +165,7 @@ if (phone && !/^[+\d][\d\s().-]{6,19}$/.test(phone)) {
               <div className="profile-fields">
                 <div className="profile-field">
                   <label>Display Name</label>
-                  <input className="profile-input" value={name} onChange={(e) => setName(e.target.value)} />
+                  <div className="profile-readonly"><UserRound size={15} /><span>{name || "Not provided"}</span></div>
                 </div>
 
                 <div className="profile-field-row">
@@ -182,32 +182,15 @@ if (phone && !/^[+\d][\d\s().-]{6,19}$/.test(phone)) {
                 <div className="profile-field-row">
                   <div className="profile-field">
                     <label>Email</label>
-                    <input
-                      className="profile-input"
-                      type="email"
-                      value={emailValue}
-                      onChange={(e) => setEmailValue(e.target.value)}
-                      placeholder="Enter email address"
-                    />
+                    <div className="profile-readonly"><AtSign size={15} /><span>{emailValue || "Not provided"}</span></div>
                   </div>
                   <div className="profile-field">
                     <label>Phone Number</label>
-                    <input
-                      className="profile-input"
-                      type="tel"
-                      value={phoneValue}
-                      onChange={(e) => setPhoneValue(e.target.value)}
-                      placeholder="Enter phone number"
-                    />
+                    <div className="profile-readonly"><Phone size={15} /><span>{phoneValue || "Not provided"}</span></div>
                   </div>
                 </div>
               </div>
 
-              <div className="profile-card-footer">
-                <button type="button" className="btn btn-primary" onClick={saveProfile} disabled={savingName}>
-                  {savingName ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
             </article>
           </div>
 

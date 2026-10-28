@@ -135,7 +135,7 @@ export default function SettingsPage({ onNavigate, theme, setTheme }) {
           onClick={() => onNavigate("dashboard")}
         >
           <ArrowLeft size={18} />
-          Back to Dashboard
+          
         </button>
 
         <div>
