@@ -1,4 +1,3 @@
-{/* this is dashboard.jsx */}
 import { useState, useEffect, useRef, useCallback ,useMemo} from "react";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -198,6 +197,18 @@ export default function Dashboard({
 
   // Navigation
   const [activeTab, setActiveTab] = useState("dashboard");
+  // Remembers the page the user was on before opening Profile or Settings
+  const returnTabRef = useRef("dashboard");
+  const openPage = (tab) => {
+    if (
+      (tab === "profile" || tab === "settings") &&
+      activeTab !== "profile" &&
+      activeTab !== "settings"
+    ) {
+      returnTabRef.current = activeTab;
+    }
+    setActiveTab(tab);
+  };
   // Sidebar collapse (icon-only rail)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Mobile only: the sidebar becomes a slide-in drawer opened from the top bar.
@@ -1284,7 +1295,7 @@ export default function Dashboard({
                     className="profile-dropdown-item"
                     onClick={() => {
                       setShowProfileMenu(false);
-                      setActiveTab("profile");
+                      openPage("profile");
                     }}
                   >
                     <Users size={14} />
@@ -1296,7 +1307,7 @@ export default function Dashboard({
                   className="profile-dropdown-item"
                   onClick={() => {
                     setShowProfileMenu(false);
-                    setActiveTab("settings");
+                    openPage("settings");
                   }}
                   >
                   <ShieldCheck size={14} />
@@ -1322,7 +1333,7 @@ export default function Dashboard({
         <TopBar
           activeTab={activeTab}
           initials={initials}
-          onNavigate={setActiveTab}
+          onNavigate={openPage}
           onMenuClick={() => {
             setSidebarCollapsed(false);
             setMobileNavOpen(true);
@@ -1393,7 +1404,7 @@ export default function Dashboard({
     user={user}
     displayName={displayName}
     onDisplayNameUpdated={setDisplayName}
-    onBack={() => setActiveTab("dashboard")}
+    onBack={() => setActiveTab(returnTabRef.current)}
     onToast={addToast}
   />
 )}
@@ -1401,7 +1412,9 @@ export default function Dashboard({
 {activeTab === "settings" && (
   <SettingsPage
     key="settings"
-    onNavigate={setActiveTab}
+    onNavigate={(tab) =>
+            setActiveTab(tab === "dashboard" ? returnTabRef.current : tab)
+          }
     theme={theme}
     setTheme={setTheme}
     toggleTheme={toggleTheme}
