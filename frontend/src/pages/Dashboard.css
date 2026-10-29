@@ -2995,3 +2995,110 @@
     bottom: 12px;
   }
 }
+
+
+/* Dashboard category filter spacing */
+.dashboard-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  margin-bottom: 22px;
+}
+
+/* Consistent KPI card grid */
+.finance-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 0;
+  margin-bottom: 26px;
+  align-items: stretch;
+}
+
+/* Keep KPI cards visually balanced */
+.finance-stat-card {
+  min-width: 0;
+  min-height: 122px;
+  height: 100%;
+  padding: 22px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Clear separation between KPI cards and charts */
+.finance-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 0;
+  align-items: stretch;
+}
+
+/* Prevent chart cards from feeling crowded */
+.finance-chart-card {
+  min-width: 0;
+  padding: 22px;
+  box-sizing: border-box;
+}
+
+.finance-card-header {
+  margin-bottom: 16px;
+}
+
+.finance-chart-card .finance-filter-container {
+  margin-top: 8px;
+  margin-bottom: 18px;
+}
+
+.finance-chart-card .finance-filter-toggle {
+  min-height: 36px;
+}
+
+/* Full-width charts */
+.finance-chart-card-full {
+  grid-column: 1 / -1;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .finance-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-charts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .dashboard-category-pills {
+    gap: 8px;
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  .finance-stats-grid,
+  .finance-charts-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .finance-stat-card {
+    min-height: 108px;
+    padding: 18px;
+  }
+
+  .finance-chart-card {
+    padding: 18px;
+  }
+
+  .finance-chart-card-full {
+    grid-column: auto;
+  }
+}

@@ -1,10 +1,7 @@
+
 /*
  * TEMP (frontend-only testing): local mock backend.
- *
- * Active when VITE_USE_MOCK is not "false" (see .env.example). Every API
- * call is answered here, so the UI works with no FastAPI server and no
- * database. Delete this file and the DEMO_MODE hooks in api.js once the
- * real backend is connected.
+ * Uses fixed demo data without requiring FastAPI or a database.
  */
 
 export const DEMO_MODE = import.meta.env.VITE_USE_MOCK !== "false";
@@ -14,17 +11,16 @@ const NO_DB_NOTE =
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/* ---------- in-memory chat history (resets on page reload) ---------- */
+/* ---------- In-memory chat history ---------- */
+
 let nextId = 1;
-const sessions = []; // { id, title, created_at, updated_at, message_count }
-const messagesBySession = {}; // id -> [{ id, role, content, sql_query, latency_ms, created_at }]
+const sessions = [];
+const messagesBySession = {};
 
-
-/* Seed a few past chats so the Recents panel can be previewed. */
 const SEED_CHATS = [
   ["Show me the top 10 customers", "Sample reply: the top customers would be listed here."],
   ["How many open sales orders are there today?", "Sample reply: the open order count would be shown here."],
-  ["List all parts with zero quantity on hand", "Sample reply: the parts list would be shown as a table here."],
+  ["List all parts with zero quantity on hand", "Sample reply: the parts list would be shown here."],
   ["What are the total sales in last 6 months?", "Sample reply: monthly sales totals would be shown here."],
   ["AR invoices older than 90 days", "Sample reply: overdue receivables would be listed here."],
   ["Which suppliers have the highest open PO value?", "Sample reply: supplier PO totals would be listed here."],
@@ -33,10 +29,32 @@ const SEED_CHATS = [
 SEED_CHATS.forEach(([question, answer], i) => {
   const id = `seed-${i + 1}`;
   const created = new Date(Date.now() - (i + 1) * 5 * 3600 * 1000).toISOString();
-  sessions.push({ id, title: question, created_at: created, updated_at: created, message_count: 2 });
+
+  sessions.push({
+    id,
+    title: question,
+    created_at: created,
+    updated_at: created,
+    message_count: 2,
+  });
+
   messagesBySession[id] = [
-    { id: `${id}-u`, role: "user", content: question, sql_query: null, latency_ms: 0, created_at: created },
-    { id: `${id}-a`, role: "assistant", content: `${NO_DB_NOTE}\n\n${answer}`, sql_query: null, latency_ms: 0, created_at: created },
+    {
+      id: `${id}-u`,
+      role: "user",
+      content: question,
+      sql_query: null,
+      latency_ms: 0,
+      created_at: created,
+    },
+    {
+      id: `${id}-a`,
+      role: "assistant",
+      content: `${NO_DB_NOTE}\n\n${answer}`,
+      sql_query: null,
+      latency_ms: 0,
+      created_at: created,
+    },
   ];
 });
 
@@ -72,9 +90,24 @@ export function recordMockChat(question, sessionId) {
   const messageId = nextId++;
 
   messagesBySession[sid].push(
-    { id: nextId++, role: "user", content: question, sql_query: null, latency_ms: 0, created_at: now },
-    { id: messageId, role: "assistant", content: answer, sql_query: null, latency_ms: 0, created_at: now },
+    {
+      id: nextId++,
+      role: "user",
+      content: question,
+      sql_query: null,
+      latency_ms: 0,
+      created_at: now,
+    },
+    {
+      id: messageId,
+      role: "assistant",
+      content: answer,
+      sql_query: null,
+      latency_ms: 0,
+      created_at: now,
+    }
   );
+
   session.message_count = messagesBySession[sid].length;
   session.updated_at = now;
 
@@ -93,12 +126,7 @@ export function recordMockChat(question, sessionId) {
   };
 }
 
-
-/* ---------- dummy dashboard data (visuals only) ---------- */
-/*
- * Shapes match what the real backend returns, so the components need no
- * changes when VITE_USE_MOCK=false. Numbers are made up.
- */
+/* ---------- Fixed dashboard demo data ---------- */
 
 const CUSTOMERS = [
   { num: 1001, name: "Acme Industries" },
@@ -122,66 +150,78 @@ const SUPPLIERS = [
   { num: 2008, name: "Wingtip Tooling" },
 ];
 
-const CUSTOMER_BALANCES = [980000, 845000, 712000, 655000, 540000, 430000, 318000, 205000];
-const SUPPLIER_BALANCES = [760000, 690000, 585000, 470000, 392000, 301000, 244000, 158000];
+const CUSTOMER_BALANCES = [
+  980000, 845000, 712000, 655000, 540000, 430000, 318000, 205000,
+];
+
+const SUPPLIER_BALANCES = [
+  760000, 690000, 585000, 470000, 392000, 301000, 244000, 158000,
+];
 
 const partyRows = (parties, balances) =>
-  parties.map((p, i) => ({
-    PartyNum: p.num,
-    PartyName: p.name,
+  parties.map((party, i) => ({
+    PartyNum: party.num,
+    PartyName: party.name,
     Balance: balances[i],
   }));
 
 const DUMMY_DASHBOARD_DATA = {
+  // FINANCE
   high_value_invoices: {
     column_names: ["Label", "Count"],
     data: [{ Label: "High-value invoices", Count: 42 }],
   },
+
   largest_open_order: {
     column_names: ["Label", "Amount"],
     data: [{ Label: "Largest open sales order", Amount: 1250000 }],
   },
+
   open_order_rate: {
     column_names: ["Label", "Rate"],
     data: [{ Label: "Open order rate", Rate: 37.5 }],
   },
+
   top_customer_revenue: {
     column_names: ["Label", "Revenue"],
     data: [{ Label: "Top customer revenue", Revenue: 4820000 }],
   },
+
   ar_invoice_balance_customer: {
     column_names: ["PartyNum", "PartyName", "Balance"],
     data: partyRows(CUSTOMERS, CUSTOMER_BALANCES),
   },
+
   ap_invoice_balance_supplier: {
     column_names: ["PartyNum", "PartyName", "Balance"],
     data: partyRows(SUPPLIERS, SUPPLIER_BALANCES),
   },
+
   ar_invoice_aging_customer: {
-    column_names: ["Bucket", "Balance"],
+    column_names: ["Customer", "Balance"],
     data: [
-      { Bucket: "Current", Balance: 1450000 },
-      { Bucket: "1-30 days", Balance: 920000 },
-      { Bucket: "31-60 days", Balance: 610000 },
-      { Bucket: "61-90 days", Balance: 340000 },
-      { Bucket: "90+ days", Balance: 185000 },
+      { Customer: "Acme Industries", Balance: 225000 },
+      { Customer: "Globex Corporation", Balance: 180000 },
+      { Customer: "Initech Manufacturing", Balance: 145000 },
+      { Customer: "Umbrella Logistics", Balance: 98000 },
+      { Customer: "Stark Components", Balance: 76000 },
     ],
   },
+
   ap_invoice_aging_supplier: {
-    column_names: ["Bucket", "Balance"],
+    column_names: ["Supplier", "Balance"],
     data: [
-      { Bucket: "Current", Balance: 1120000 },
-      { Bucket: "1-30 days", Balance: 780000 },
-      { Bucket: "31-60 days", Balance: 450000 },
-      { Bucket: "61-90 days", Balance: 260000 },
-      { Bucket: "90+ days", Balance: 120000 },
+      { Supplier: "Northwind Metals", Balance: 195000 },
+      { Supplier: "Contoso Plastics", Balance: 162000 },
+      { Supplier: "Fabrikam Castings", Balance: 128000 },
+      { Supplier: "Tailspin Fasteners", Balance: 84000 },
+      { Supplier: "Adventure Works Supply", Balance: 67000 },
     ],
   },
+
   profit_revenue_year_trend: {
     column_names: ["Year", "Revenue", "Profit"],
     data: [
-      { Year: 2019, Revenue: 5200000, Profit: 640000 },
-      { Year: 2020, Revenue: 4600000, Profit: -180000 },
       { Year: 2021, Revenue: 6100000, Profit: 720000 },
       { Year: 2022, Revenue: 7400000, Profit: 1050000 },
       { Year: 2023, Revenue: 8300000, Profit: 1320000 },
@@ -190,13 +230,125 @@ const DUMMY_DASHBOARD_DATA = {
       { Year: 2026, Revenue: 5400000, Profit: 860000 },
     ],
   },
+
+  // SALES
+  sales_orders_by_status: {
+    column_names: ["Status", "Count"],
+    data: [
+      { Status: "Open", Count: 128 },
+      { Status: "Released", Count: 76 },
+      { Status: "Completed", Count: 245 },
+      { Status: "Closed", Count: 184 },
+    ],
+  },
+
+  sales_monthly_revenue: {
+    column_names: ["Month", "Revenue"],
+    data: [
+      { Month: "Jan", Revenue: 420000 },
+      { Month: "Feb", Revenue: 465000 },
+      { Month: "Mar", Revenue: 510000 },
+      { Month: "Apr", Revenue: 480000 },
+      { Month: "May", Revenue: 560000 },
+      { Month: "Jun", Revenue: 610000 },
+    ],
+  },
+
+  sales_top_products: {
+    column_names: ["Product", "Sales"],
+    data: [
+      { Product: "Product A", Sales: 185000 },
+      { Product: "Product B", Sales: 154000 },
+      { Product: "Product C", Sales: 128000 },
+      { Product: "Product D", Sales: 97000 },
+      { Product: "Product E", Sales: 82000 },
+    ],
+  },
+
+  // INVENTORY
+  inventory_low_stock: {
+    column_names: ["Label", "Count"],
+    data: [{ Label: "Low stock parts", Count: 23 }],
+  },
+
+  inventory_stock_by_warehouse: {
+    column_names: ["Warehouse", "Quantity"],
+    data: [
+      { Warehouse: "Main", Quantity: 4200 },
+      { Warehouse: "North", Quantity: 3150 },
+      { Warehouse: "South", Quantity: 2680 },
+      { Warehouse: "West", Quantity: 1940 },
+    ],
+  },
+
+  inventory_part_status: {
+    column_names: ["Status", "Count"],
+    data: [
+      { Status: "In Stock", Count: 680 },
+      { Status: "Low Stock", Count: 23 },
+      { Status: "Out of Stock", Count: 12 },
+    ],
+  },
+
+  // PRODUCTION
+  production_open_jobs: {
+    column_names: ["Label", "Count"],
+    data: [{ Label: "Open production jobs", Count: 84 }],
+  },
+
+  production_jobs_by_status: {
+    column_names: ["Status", "Count"],
+    data: [
+      { Status: "Open", Count: 84 },
+      { Status: "In Progress", Count: 46 },
+      { Status: "Completed", Count: 172 },
+      { Status: "On Hold", Count: 9 },
+    ],
+  },
+
+  production_output_trend: {
+    column_names: ["Month", "Output"],
+    data: [
+      { Month: "Jan", Output: 820 },
+      { Month: "Feb", Output: 910 },
+      { Month: "Mar", Output: 875 },
+      { Month: "Apr", Output: 960 },
+      { Month: "May", Output: 1030 },
+      { Month: "Jun", Output: 1080 },
+    ],
+  },
+
+  // PURCHASING
+  purchasing_open_pos: {
+    column_names: ["Label", "Count"],
+    data: [{ Label: "Open purchase orders", Count: 57 }],
+  },
+
+  purchasing_supplier_spend: {
+    column_names: ["Supplier", "Spend"],
+    data: [
+      { Supplier: "Northwind Metals", Spend: 760000 },
+      { Supplier: "Contoso Plastics", Spend: 690000 },
+      { Supplier: "Fabrikam Castings", Spend: 585000 },
+      { Supplier: "Tailspin Fasteners", Spend: 470000 },
+      { Supplier: "Litware Electronics", Spend: 301000 },
+    ],
+  },
+
+  purchasing_lead_time: {
+    column_names: ["Label", "Days"],
+    data: [{ Label: "Average supplier lead time", Days: 17 }],
+  },
 };
+
+/* ---------- Demo insights ---------- */
 
 const DUMMY_INSIGHTS = [
   {
     id: "ins-1",
     title: "Open sales orders are up this month",
-    description: "There are 128 open sales orders, 12% more than last month, mostly from your top 5 customers.",
+    description:
+      "There are 128 open sales orders, 12% more than last month, mostly from your top 5 customers.",
     category: "Sales",
     severity: "info",
     badge: "Trend",
@@ -208,7 +360,8 @@ const DUMMY_INSIGHTS = [
   {
     id: "ins-2",
     title: "Overdue receivables need attention",
-    description: "$525K of AR invoices are more than 60 days past due across 9 customers.",
+    description:
+      "$525K of AR invoices are more than 60 days past due across 9 customers.",
     category: "Finance",
     severity: "warning",
     badge: "Attention",
@@ -220,7 +373,8 @@ const DUMMY_INSIGHTS = [
   {
     id: "ins-3",
     title: "Parts with zero stock on hand",
-    description: "23 active parts currently show zero quantity on hand and have open demand.",
+    description:
+      "23 active parts currently show zero quantity on hand and have open demand.",
     category: "Inventory",
     severity: "danger",
     badge: "Critical",
@@ -232,7 +386,8 @@ const DUMMY_INSIGHTS = [
   {
     id: "ins-4",
     title: "Production throughput is on target",
-    description: "Job completion rate is 96% this week, in line with the monthly target.",
+    description:
+      "Job completion rate is 96% this week, in line with the monthly target.",
     category: "Production",
     severity: "success",
     badge: "On track",
@@ -244,7 +399,8 @@ const DUMMY_INSIGHTS = [
   {
     id: "ins-5",
     title: "Supplier lead times are slipping",
-    description: "Average purchase order lead time rose from 14 to 17 days over the last quarter.",
+    description:
+      "Average purchase order lead time rose from 14 to 17 days over the last quarter.",
     category: "Purchasing",
     severity: "warning",
     badge: "Watch",
@@ -256,7 +412,8 @@ const DUMMY_INSIGHTS = [
   {
     id: "ins-6",
     title: "Revenue is ahead of last year",
-    description: "Year-to-date revenue is $5.4M, 9% above the same period last year.",
+    description:
+      "Year-to-date revenue is $5.4M, 9% above the same period last year.",
     category: "Sales",
     severity: "success",
     badge: "Positive",
@@ -266,6 +423,8 @@ const DUMMY_INSIGHTS = [
     trend_percent: 9,
   },
 ];
+
+/* ---------- Dashboard data helpers ---------- */
 
 function buildDashboardData(params = {}) {
   const only = params.chart_id;
@@ -277,14 +436,16 @@ function buildDashboardData(params = {}) {
     if (!source) return;
 
     let rows = source.data;
-    // Light filtering so the Filters dropdowns visibly do something.
+
     const picked = String(params.customer || params.supplier || "")
       .split(",")
-      .map((v) => v.trim())
+      .map((value) => value.trim())
       .filter(Boolean);
+
     if (picked.length && rows[0] && "PartyNum" in rows[0]) {
-      rows = rows.filter((r) => picked.includes(String(r.PartyNum)));
+      rows = rows.filter((row) => picked.includes(String(row.PartyNum)));
     }
+
     data[key] = { ...source, data: rows };
   });
 
@@ -293,46 +454,68 @@ function buildDashboardData(params = {}) {
 
 function buildPartyOptions(params = {}) {
   const list = params.party_type === "supplier" ? SUPPLIERS : CUSTOMERS;
-  const q = String(params.q || "").toLowerCase();
+  const query = String(params.q || "").toLowerCase();
+
   const options = list
-    .filter((p) => p.name.toLowerCase().includes(q) || String(p.num).includes(q))
-    .map((p) => ({
-      value: String(p.num),
-      label: `${p.name} (#${p.num})`,
-      name: p.name,
-      num: p.num,
+    .filter(
+      (party) =>
+        party.name.toLowerCase().includes(query) ||
+        String(party.num).includes(query)
+    )
+    .map((party) => ({
+      value: String(party.num),
+      label: `${party.name} (#${party.num})`,
+      name: party.name,
+      num: party.num,
     }));
+
   return { options, has_more: false, next_cursor: null };
 }
 
-/* ---------- axios adapter ---------- */
+/* ---------- Axios mock adapter ---------- */
 
 function route(method, path, config) {
   const body =
     typeof config.data === "string" && config.data
       ? JSON.parse(config.data)
       : config.data || {};
+
   const params = config.params || {};
 
   // HEALTH / SCHEMA
   if (path === "/health") {
     return {
       status: "ok",
-      database: { connected: false, message: "No database connected (frontend test mode)" },
+      database: {
+        connected: false,
+        message: "No database connected (frontend test mode)",
+      },
       schema: { loaded: false, table_count: 0 },
     };
   }
-  if (path === "/schema/progress") return { progress: { status: "idle" } };
+
+  if (path === "/schema/progress") {
+    return { progress: { status: "idle" } };
+  }
+
   if (path === "/schema/overview") return {};
 
   // CHAT
   if (path === "/chat/query" && method === "post") {
     return recordMockChat(String(body.message || ""), body.session_id);
   }
+
   if (path === "/chat/feedback") return { success: true };
+
   if (path === "/chat/execute-history-query") {
-    return { data: [], column_names: [], column_info: [], row_count: 0 };
+    return {
+      data: [],
+      column_names: [],
+      column_info: [],
+      row_count: 0,
+    };
   }
+
   if (path.startsWith("/chat/export/")) {
     return new Blob([`${NO_DB_NOTE}\n`], { type: "text/plain" });
   }
@@ -341,25 +524,44 @@ function route(method, path, config) {
   if (path === "/history/sessions" && method === "get") {
     const offset = Number(params.offset) || 0;
     const limit = Number(params.limit) || 50;
+
     return { sessions: sessions.slice(offset, offset + limit) };
   }
+
   if (path === "/history/search") {
-    const q = String(params.q || "").toLowerCase();
+    const query = String(params.q || "").toLowerCase();
+    const results = sessions.filter((session) =>
+      session.title.toLowerCase().includes(query)
+    );
+
+    return { results, sessions: results };
+  }
+
+  let match = path.match(/^\/history\/sessions\/([^/]+)\/messages$/);
+
+  if (match) {
     return {
-      results: sessions.filter((s) => s.title.toLowerCase().includes(q)),
-      sessions: sessions.filter((s) => s.title.toLowerCase().includes(q)),
+      messages: messagesBySession[decodeURIComponent(match[1])] || [],
     };
   }
-  let m = path.match(/^\/history\/sessions\/([^/]+)\/messages$/);
-  if (m) return { messages: messagesBySession[decodeURIComponent(m[1])] || [] };
-  m = path.match(/^\/history\/sessions\/([^/]+)\/export\/pdf$/);
-  if (m) return new Blob([`${NO_DB_NOTE}\n`], { type: "text/plain" });
-  m = path.match(/^\/history\/sessions\/([^/]+)$/);
-  if (m && method === "delete") {
-    const sid = decodeURIComponent(m[1]);
-    const idx = sessions.findIndex((s) => String(s.id) === sid);
-    if (idx >= 0) sessions.splice(idx, 1);
-    delete messagesBySession[sid];
+
+  match = path.match(/^\/history\/sessions\/([^/]+)\/export\/pdf$/);
+
+  if (match) {
+    return new Blob([`${NO_DB_NOTE}\n`], { type: "text/plain" });
+  }
+
+  match = path.match(/^\/history\/sessions\/([^/]+)$/);
+
+  if (match && method === "delete") {
+    const sessionId = decodeURIComponent(match[1]);
+    const index = sessions.findIndex(
+      (session) => String(session.id) === sessionId
+    );
+
+    if (index >= 0) sessions.splice(index, 1);
+    delete messagesBySession[sessionId];
+
     return { success: true };
   }
 
@@ -368,27 +570,31 @@ function route(method, path, config) {
   if (path === "/dashboard/summary") return {};
   if (path === "/dashboard/data") return buildDashboardData(params);
   if (path === "/dashboard/party-options") return buildPartyOptions(params);
+
   if (path.startsWith("/dashboard/chart-data/")) {
     const key = decodeURIComponent(path.split("/").pop());
     return DUMMY_DASHBOARD_DATA[key] || { data: [] };
   }
-  if (path === "/dashboard/insights") return { insights: DUMMY_INSIGHTS };
+
+  if (path === "/dashboard/insights") {
+    return { insights: DUMMY_INSIGHTS };
+  }
 
   // PROFILE / AUTH
   if (path === "/auth/me") {
-    const display = body.display_name;
     return {
       username: "admin",
-      display_name: display || "Admin",
+      display_name: body.display_name || "Admin",
       email: body.email || "admin@example.com",
       phone: body.phone || "",
       role: "admin",
     };
   }
+
   if (path === "/auth/change-password") return { success: true };
   if (path === "/auth/logout") return { success: true };
 
-  // Anything else: harmless empty success so the UI never shows server errors.
+  // Harmless empty success for unimplemented mock endpoints
   return {};
 }
 
@@ -409,22 +615,25 @@ export async function mockAdapter(config) {
   };
 }
 
-/* ---------- streaming chat (replaces fetch to /chat/query/stream) ---------- */
+/* ---------- Streaming chat mock ---------- */
 
 export async function mockStreamChat(
   message,
   sessionId,
   { onStatus, onChunk, onDone } = {},
-  signal = null,
+  signal = null
 ) {
   onStatus?.("Thinking…");
   await delay(500);
+
   if (signal?.aborted) return;
 
   const result = recordMockChat(String(message || ""), sessionId);
+
   onStatus?.("Finalizing response…");
 
   const chunks = result.answer.match(/\S+\s*/g) || [result.answer];
+
   for (const chunk of chunks) {
     if (signal?.aborted) return;
     onChunk?.(chunk);

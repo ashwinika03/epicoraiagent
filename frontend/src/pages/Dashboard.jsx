@@ -119,22 +119,18 @@ const CATEGORY_ICONS = {
 //   "chart" -> full chart cards, 2 per row
 const FINANCE_CHART_CONFIGS = [
   // ── Numeric-only stat cards (row of 4) ──
-  {
-    id: "high-value-invoices",
-    title: "High-Value Invoices ($50K+)",
-    queryKey: "high_value_invoices",
-    kind: "count-stat",
-    group: "stat",
-  },
-  {
-    id: "largest-open-order",
-    title: "Largest Open Sales Order",
-    queryKey: "largest_open_order",
-    kind: "stat",
-    group: "stat",
-  },
+  
+  //{
+    //id: "largest-open-order",
+    //category: "Sales",
+    //title: "Largest Open Sales Order",
+    //queryKey: "largest_open_order",
+    //kind: "stat",
+   // group: "stat",
+  //},
   {
     id: "open-order-rate",
+    category: "Sales",
     title: "Open Order Rate",
     queryKey: "open_order_rate",
     kind: "percent-stat",
@@ -142,6 +138,7 @@ const FINANCE_CHART_CONFIGS = [
   },
   {
     id: "top-customer-revenue",
+    category: "Sales",
     title: "Top Customer Revenue",
     queryKey: "top_customer_revenue",
     kind: "stat",
@@ -149,15 +146,10 @@ const FINANCE_CHART_CONFIGS = [
   },
 
   // ── Chart cards (2 per row) ──
-  {
-    id: "ar-invoice-balance-customer",
-    title: "AR Invoice Balance by Customer",
-    queryKey: "ar_invoice_balance_customer",
-    kind: "hbar",
-    group: "chart",
-  },
+
   {
     id: "ap-invoice-balance-supplier",
+    category: "Finance",
     title: "AP Invoice Balance by Supplier",
     queryKey: "ap_invoice_balance_supplier",
     kind: "hbar",
@@ -165,26 +157,25 @@ const FINANCE_CHART_CONFIGS = [
   },
   {
     id: "ar-invoice-aging-customer",
+    category: "Finance",
     title: "AR Invoice Aging by Customer",
     queryKey: "ar_invoice_aging_customer",
     kind: "stacked-bar",
     group: "chart",
   },
-  {
-    id: "ap-invoice-aging-supplier",
-    title: "AP Invoice Aging by Supplier",
-    queryKey: "ap_invoice_aging_supplier",
-    kind: "stacked-bar",
-    group: "chart",
-  },
-  {
-    id: "profit-revenue-year-trend",
-    title: "Profit vs Revenue by Year",
-    queryKey: "profit_revenue_year_trend",
-    kind: "profit-revenue-line",
-    group: "chart",
-    span: "full",
-},
+  
+  
+  // Sales demo charts
+  { id: "sales-orders-by-status", category: "Sales", title: "Sales Orders by Status", queryKey: "sales_orders_by_status", kind: "donut", group: "chart" },
+  { id: "sales-monthly-revenue", category: "Sales", title: "Monthly Sales Revenue", queryKey: "sales_monthly_revenue", kind: "line", group: "chart" },
+  { id: "sales-top-products", category: "Sales", title: "Top Products by Sales", queryKey: "sales_top_products", kind: "histogram", group: "chart" },
+  // Demo cards for Inventory, Production, and Purchasing.
+  { id: "inventory-part-status", category: "Inventory", title: "Part Status Breakdown", queryKey: "inventory_part_status", kind: "donut", group: "chart" },
+  { id: "production-open-jobs", category: "Production", title: "Open Production Jobs", queryKey: "production_open_jobs", kind: "count-stat", group: "stat" },
+  { id: "production-jobs-by-status", category: "Production", title: "Jobs by Status", queryKey: "production_jobs_by_status", kind: "donut", group: "chart" },
+  { id: "production-output-trend", category: "Production", title: "Monthly Production Output", queryKey: "production_output_trend", kind: "line", group: "chart" },
+  { id: "purchasing-open-pos", category: "Purchasing", title: "Open Purchase Orders", queryKey: "purchasing_open_pos", kind: "count-stat", group: "stat" },
+  { id: "purchasing-lead-time", category: "Purchasing", title: "Average Supplier Lead Time", queryKey: "purchasing_lead_time", kind: "days-stat", group: "stat" },
 ];
 
 
@@ -268,6 +259,7 @@ export default function Dashboard({
   const [isHistoryChat, setIsHistoryChat] = useState(false);
   // Dashboard Metrics
   const [dashboardMetrics, setDashboardMetrics] = useState(null);
+  const [activeDashboardCategory, setActiveDashboardCategory] = useState("All");
   // Finance filter state is kept at the dashboard level so Refresh Stats
   // refreshes data without clearing the user's currently applied filters.
   const financeFiltersRef = useRef({});
@@ -1363,6 +1355,8 @@ export default function Dashboard({
               financeRefreshing={financeRefreshing}
               lastDashboardUpdated={lastDashboardUpdated}
               financeCharts={financeCharts}
+              activeCategory={activeDashboardCategory}
+              onCategoryChange={setActiveDashboardCategory}
               onRetryFinanceChart={retryFinanceDashboard}
               onApplyDashboardFilter={handleApplyDashboardFilter}
             />
@@ -2010,6 +2004,8 @@ function DashboardTab({
   financeRefreshing,
   lastDashboardUpdated,
   financeCharts,
+  activeCategory,
+  onCategoryChange,
   onRetryFinanceChart,
   onApplyDashboardFilter,
 }) {
@@ -2071,6 +2067,8 @@ function DashboardTab({
         )}
 
         <FinanceChartsSection
+          activeCategory={activeCategory}
+          onCategoryChange={onCategoryChange}
           charts={financeCharts}
           onRetry={onRetryFinanceChart}
           onRefresh={onRefresh}
@@ -3001,9 +2999,11 @@ function formatRelativeTime(value, now) {
   return date.toLocaleString();
 }
 
-function FinanceChartsSection({ charts, onRetry, onRefresh, refreshing, lastUpdated, onApplyFilter }) {
-  const statConfigs = FINANCE_CHART_CONFIGS.filter((c) => c.group === "stat");
-  const chartConfigs = FINANCE_CHART_CONFIGS.filter((c) => c.group === "chart");
+function FinanceChartsSection({ charts, onRetry, onRefresh, refreshing, lastUpdated, onApplyFilter, activeCategory, onCategoryChange }) {
+  const categories = ["All", "Sales", "Finance", "Inventory", "Production", "Purchasing"];
+  const visibleConfigs = FINANCE_CHART_CONFIGS.filter((c) => activeCategory === "All" || c.category === activeCategory);
+  const statConfigs = visibleConfigs.filter((c) => c.group === "stat");
+  const chartConfigs = visibleConfigs.filter((c) => c.group === "chart");
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -3015,7 +3015,7 @@ function FinanceChartsSection({ charts, onRetry, onRefresh, refreshing, lastUpda
     <div className="finance-charts-section">
       <div className="finance-charts-header-row">
         <h2 className="section-title finance-charts-title">
-          <Activity size={17} /> Financial &amp; Sales Insights
+          <Activity size={17} /> {activeCategory === "All" ? "Business Performance Overview" : `${activeCategory} Overview`}
         </h2>
         <div className="finance-refresh-group">
           <span className="finance-last-updated" aria-live="polite">
@@ -3026,6 +3026,15 @@ function FinanceChartsSection({ charts, onRetry, onRefresh, refreshing, lastUpda
             {refreshing ? "Refreshing…" : "Refresh Stats"}
           </button>
         </div>
+      </div>
+
+      <div className="insights-pills dashboard-category-pills" role="group" aria-label="Dashboard category filters">
+        {categories.map((cat) => (
+          <button key={cat} type="button" className={`insights-pill ${activeCategory === cat ? "active" : ""}`} onClick={() => onCategoryChange?.(cat)}>
+            {cat !== "All" && (CATEGORY_ICONS[cat] || <FolderOpen size={14} />)}
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div className="finance-stats-grid">
