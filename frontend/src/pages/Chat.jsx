@@ -5,7 +5,7 @@ import {
   BarChart3, Table2, Hash, ChevronDown, AlertCircle, Loader2, Database,
   Terminal, Download, Square, Copy, Check, FileText,
   ThumbsUp, ThumbsDown, Paperclip,
-  Plus, MoreVertical, Pin, PinOff, Pencil, Trash2,
+  Plus, MoreVertical, Pin, PinOff, Pencil, Trash2, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -1252,6 +1252,7 @@ function FormattedText({ text }) {
    ════════════════════════════════════════════ */
 const RECENTS_COLLAPSED_LIMIT = 4;
 const PINNED_STORAGE_KEY = "epicor-pinned-sessions";
+const RENAMED_STORAGE_KEY = "epicor-renamed-sessions";
 
 export function RecentsSection({
   sessions,
@@ -1301,6 +1302,16 @@ export function RecentsSection({
   const [openMenuId, setOpenMenuId] = useState(null);
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
+  // Frontend-only title overrides keep demo-mode renames across refreshes.
+  // The existing onRename callback is still called, so backend behavior is unchanged.
+  const [renameOverrides, setRenameOverrides] = useState(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(window.localStorage.getItem(RENAMED_STORAGE_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  });
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -1321,7 +1332,21 @@ export function RecentsSection({
   };
 
   const confirmRename = (sid) => {
-    if (renameValue.trim()) onRename?.(sid, renameValue);
+    const title = renameValue.trim();
+    if (title) {
+      const nextOverrides = { ...renameOverrides, [sid]: title };
+      setRenameOverrides(nextOverrides);
+      try {
+        window.localStorage.setItem(
+          RENAMED_STORAGE_KEY,
+          JSON.stringify(nextOverrides)
+        );
+      } catch (err) {
+        console.warn("Could not persist renamed chat title:", err);
+      }
+      // Preserve the existing parent/backend rename flow.
+      onRename?.(sid, title);
+    }
     setRenamingId(null);
   };
 
@@ -1331,7 +1356,11 @@ export function RecentsSection({
   };
 
   const sorted = (sessions || [])
-    .slice()
+    .map((session) =>
+      Object.prototype.hasOwnProperty.call(renameOverrides, session.id)
+        ? { ...session, title: renameOverrides[session.id] }
+        : session
+    )
     .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
   const pinnedSessions = sorted.filter((s) => pinnedIds.has(s.id));
