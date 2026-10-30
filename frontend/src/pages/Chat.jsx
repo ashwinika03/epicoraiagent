@@ -519,7 +519,7 @@ export default function Chat({
             <Sparkles size={20} />
           </span>
           <div>
-            <h1>Ask Quenza Ai</h1>
+            <h1>Ask Quenza AI</h1>
           </div>
         </div>
         <div className="aichat-subheader-actions">
