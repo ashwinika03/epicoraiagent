@@ -2,18 +2,16 @@ import { useState, useEffect, useRef, useCallback ,useMemo} from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   getHealth,
-  getSchemaProgress,
   streamChatQuery,
   getHistorySessions,
-  searchHistory,
   getSessionMessages,
+  renameSession,
   deleteSession,
-  getDashboardMetrics,
-  exportSessionPdf,
+  getDashboardData,
+  getDashboardFilters,
   getDashboardInsights,
-  getMe,
-  updateProfile,
-  changePassword,
+  getMe
+  
 } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -120,14 +118,14 @@ const CATEGORY_ICONS = {
 const FINANCE_CHART_CONFIGS = [
   // ── Numeric-only stat cards (row of 4) ──
   
-  //{
-    //id: "largest-open-order",
-    //category: "Sales",
-    //title: "Largest Open Sales Order",
-    //queryKey: "largest_open_order",
-    //kind: "stat",
-   // group: "stat",
-  //},
+  {
+    id: "largest-open-order",
+    category: "Sales",
+    title: "Largest Open Sales Order",
+    queryKey: "largest_open_order",
+    kind: "stat",
+   group: "stat",
+  },
   {
     id: "open-order-rate",
     category: "Sales",
@@ -213,13 +211,19 @@ export default function Dashboard({
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const profileMenuRef = useRef(null);
 
-  useEffect(() => {
-    getMe()
-      .then((res) => setDisplayName(res.data?.display_name || null))
-      .catch(() => {
-        // Non-fatal — sidebar just falls back to the username.
-      });
-  }, []);
+ useEffect(() => {
+  getMe()
+    .then((res) => {
+      setDisplayName(
+        res.data?.user?.name ||
+        res.data?.user?.id ||
+        null
+      );
+    })
+    .catch(() => {
+      // Non-fatal — sidebar falls back to the logged-in username.
+    });
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -296,7 +300,7 @@ export default function Dashboard({
   };
 
   const fetchDashboardMetrics = useCallback(() => {
-    return getDashboardMetrics()
+    return getDashboardData({ view: "metrics" })
       .then((res) => setDashboardMetrics(res.data))
       .catch(() => {
         addToast(
@@ -381,7 +385,7 @@ export default function Dashboard({
     }));
 
     try {
-      const { default: api } = await import("../services/api");
+     
       const params = { chart_id: config.queryKey };
       if (activeFilters.customer?.length) params.customer = activeFilters.customer.join(",");
       if (activeFilters.supplier?.length) params.supplier = activeFilters.supplier.join(",");
@@ -389,7 +393,7 @@ export default function Dashboard({
       if (activeFilters.dateTo) params.date_to = activeFilters.dateTo;
       if (activeFilters.asOfDate) params.as_of_date = activeFilters.asOfDate;
 
-      const res = await api.get("/dashboard/data", { params });
+      const res = await getDashboardData(params);
       const payload = res.data || {};
       const errMsg = payload.errors?.[config.queryKey];
       const data = payload.data?.[config.queryKey] || null;
@@ -432,14 +436,14 @@ export default function Dashboard({
     setFinanceCharts((prev) => ({ ...prev, ...loadingState }));
 
     try {
-      const { default: api } = await import("../services/api");
+   
 
       // The original endpoint can return all cards in one request when no
       // filters are active. Once filters are active, each card must receive
       // its own filter parameters so Refresh Stats never falls back to
       // unfiltered data.
       if (!hasFilters) {
-        const res = await api.get("/dashboard/data");
+        const res = await getDashboardData();
         const payload = res.data || {};
         const datasets = payload.data || {};
         const errors = payload.errors || {};
@@ -755,31 +759,13 @@ export default function Dashboard({
     }
   };
 
-  // >>> ADDED: local rename overrides, persisted to localStorage so a
-  // renamed chat title survives re-fetches (tab switches) AND page
-  // reloads, even though there's no backend rename endpoint yet.
-  // Shape: { [sessionId]: renamedTitle }
-  const renameOverridesRef = useRef((() => {
-    try {
-      return JSON.parse(localStorage.getItem("chatRenameOverrides") || "{}");
-    } catch {
-      return {};
-    }
-  })());
 
-  const applyRenameOverrides = useCallback((sessions) => {
-    const overrides = renameOverridesRef.current;
-    if (!overrides || Object.keys(overrides).length === 0) return sessions;
-    return sessions.map((s) =>
-      overrides[s.id] ? { ...s, title: overrides[s.id] } : s,
-    );
-  }, []);
 
   const loadHistorySessions = useCallback(async () => {
     setHistoryLoading(true);
     try {
-      const res = await getHistorySessions(50, 0);
-      const serverSessions = applyRenameOverrides(res.data.sessions || []);
+      const res = await getHistorySessions();
+      const serverSessions = res.data?.sessions || [];
       setHistorySessions((prev) => {
         const pending = prev.filter((s) => String(s.id).startsWith("pending-"));
         return [...pending, ...serverSessions.filter(
@@ -798,7 +784,7 @@ export default function Dashboard({
     } finally {
       setHistoryLoading(false);
     }
-  }, [addToast, applyRenameOverrides]);
+  }, [addToast]);
 
   const handleUpdateHistoryMessage = useCallback((index, patch) => {
     setMessages((prev) =>
@@ -806,28 +792,7 @@ export default function Dashboard({
     );
   }, []);
 
-  // NOTE: not currently called from any UI element (no search input is
-  // wired to it yet) — left in place since it's a working implementation
-  // against the real searchHistory API, not deleted.
-  // eslint-disable-next-line no-unused-vars
-  const handleHistorySearch = useCallback(
-    async (query) => {
-      if (!query.trim()) {
-        loadHistorySessions();
-        return;
-      }
-      setHistoryLoading(true);
-      try {
-        const res = await searchHistory(query, 20);
-        setHistorySessions(applyRenameOverrides(res.data.results || []));
-      } catch (err) {
-        console.error("Search failed:", err);
-      } finally {
-        setHistoryLoading(false);
-      }
-    },
-    [loadHistorySessions, applyRenameOverrides],
-  );
+ 
 
   // Load history once when Dashboard mounts. New sessions are inserted into
   // local state immediately after a successful query, so tab switching does
@@ -892,7 +857,7 @@ export default function Dashboard({
         id: m.id,
         role: m.role,
         content: m.content,
-        sql: m.sql_query,
+        sql: null,
 
         // History stores the query/result metadata, not the table rows.
         // Execute can regenerate the table temporarily.
@@ -930,16 +895,7 @@ export default function Dashboard({
     try {
       await deleteSession(sid);
       setHistorySessions((prev) => prev.filter((s) => s.id !== sid));
-      if (renameOverridesRef.current[sid]) {
-        const next = { ...renameOverridesRef.current };
-        delete next[sid];
-        renameOverridesRef.current = next;
-        try {
-          localStorage.setItem("chatRenameOverrides", JSON.stringify(next));
-        } catch {
-          // ignore
-        }
-      }
+      
       if (sessionId === sid) {
         setSessionId(null);
         setMessages([]);
@@ -949,30 +905,38 @@ export default function Dashboard({
     }
   };
 
-  // >>> ADDED: rename a recent chat's title.
-  // TODO (backend): no rename endpoint exists yet — this updates local
-  // state AND a localStorage-backed override map, so the renamed title
-  // survives tab switches (which re-fetch history) and page reloads.
-  // Wire this to a real rename/PATCH API call once one exists — at that
-  // point the override map can be removed.
-  const handleRenameSession = (sid, newTitle) => {
-    const trimmed = (newTitle || "").trim();
-    if (!trimmed) return;
+ const handleRenameSession = async (sid, newTitle) => {
+  const trimmed = (newTitle || "").trim();
 
-    renameOverridesRef.current = { ...renameOverridesRef.current, [sid]: trimmed };
-    try {
-      localStorage.setItem(
-        "chatRenameOverrides",
-        JSON.stringify(renameOverridesRef.current),
-      );
-    } catch {
-      // localStorage unavailable — rename still applies for this session
-    }
+  if (!trimmed) return;
+
+  try {
+    await renameSession(sid, trimmed);
 
     setHistorySessions((prev) =>
-      prev.map((s) => (s.id === sid ? { ...s, title: trimmed } : s)),
+      prev.map((s) =>
+        String(s.id) === String(sid)
+          ? { ...s, title: trimmed }
+          : s
+      )
     );
-  };
+
+    addToast(
+      "Chat Renamed",
+      "Conversation title updated successfully.",
+      "success"
+    );
+  } catch (err) {
+    console.error("Failed to rename session:", err);
+
+    addToast(
+      "Rename Failed",
+      err?.response?.data?.detail ||
+        "Could not rename this conversation.",
+      "error"
+    );
+  }
+};
 
   const [exportingSessionId, setExportingSessionId] = useState(null);
 
@@ -2764,10 +2728,11 @@ function PartyFilterDropdown({ label, partyType, value, onChange, placeholder })
       setHasMore(true);
 
       try {
-        const { default: api } = await import("../services/api");
-        const res = await api.get("/dashboard/party-options", {
-          params: { party_type: partyType, q: search.trim(), limit: PAGE_SIZE },
-        });
+        const res = await getDashboardFilters({
+        party_type: partyType,
+        q: search.trim(),
+        limit: PAGE_SIZE,
+      });
 
         if (requestId !== requestIdRef.current) return;
 
@@ -2808,16 +2773,13 @@ function PartyFilterDropdown({ label, partyType, value, onChange, placeholder })
     setLoadingMore(true);
 
     try {
-      const { default: api } = await import("../services/api");
-      const res = await api.get("/dashboard/party-options", {
-        params: {
-          party_type: partyType,
-          q: search.trim(),
-          limit: PAGE_SIZE,
-          after_name: cursor.name,
-          after_num: cursor.num,
-        },
-      });
+      const res = await getDashboardFilters({
+      party_type: partyType,
+      q: search.trim(),
+      limit: PAGE_SIZE,
+      after_name: cursor.name,
+      after_num: cursor.num,
+    });
 
       if (requestId !== requestIdRef.current) return;
 

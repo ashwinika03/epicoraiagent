@@ -9,9 +9,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  exportQueryResult,
-  executeHistoricalQuery,
-  submitChatFeedback,
+
+ 
 } from '../services/api';
 import './Chat.css';
 
@@ -293,28 +292,10 @@ export default function Chat({
     handleKeyDown(e);
   };
 
-  // >>> ADDED: same export logic as before, now routed through the shared
-  // `api` axios instance (exportQueryResult) instead of raw fetch, so auth
-  // headers are handled the exact same way as every other API call.
+  //handles export needs to be added
   const handleExport = async (messageId) => {
-    try {
-      const res = await exportQueryResult(messageId);
-      const url = URL.createObjectURL(res.data); // res.data is already a Blob (responseType: 'blob')
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `epicor_export_${messageId}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      onDownloadComplete?.(
-        "Download completed",
-        "Your query result table has been downloaded successfully."
-      );
-    } catch {
-      // show a toast: "Export expired — try re-running the question."
-      alert('Export expired — try re-running the question.');
-    }
-  };
+  alert("Export functionality is not available yet. Backend support is required.");
+};
 
   // =========================================================
   // FEEDBACK

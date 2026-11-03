@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, AtSign, KeyRound, Phone, ShieldCheck, User, UserRound } from "lucide-react";
-import { getMe, updateProfile, changePassword } from "../services/api";
+import { getMe} from "../services/api";
 import "./Profile.css";
 
 export default function ProfilePage({ user, displayName, onDisplayNameUpdated, onBack, onToast }) {
@@ -10,7 +10,7 @@ export default function ProfilePage({ user, displayName, onDisplayNameUpdated, o
   const [emailValue, setEmailValue] = useState("");
   const [phoneValue, setPhoneValue] = useState("");
   
-  const [savingName, setSavingName] = useState(false);
+ 
  
   const [profileError, setProfileError] = useState("");
 
@@ -94,34 +94,7 @@ if (phone && !/^[+\d][\d\s().-]{6,19}$/.test(phone)) {
     }
   };
 
-  const savePassword = async () => {
-    setPasswordError("");
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("Fill in all three fields.");
-      return;
-    }
-    if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError("New password and confirmation do not match.");
-      return;
-    }
-
-    setSavingPassword(true);
-    try {
-      await changePassword(currentPassword, newPassword);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      onToast?.("Password Changed", "Your password has been updated.", "success");
-    } catch (err) {
-      setPasswordError(err?.response?.data?.detail || "Could not change your password.");
-    } finally {
-      setSavingPassword(false);
-    }
-  };
+  
 
   return (
     <section className="profile-page">

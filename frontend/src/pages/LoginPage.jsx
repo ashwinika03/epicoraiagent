@@ -25,14 +25,16 @@ export default function LoginPage({ theme }) {
     useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      await login(username, password);
-    } catch (err) {
-      console.error("Login failed:", err);
-    }
-  };
+  if (!username.trim() || !password) return;
+
+  try {
+    await login(username.trim(), password);
+  } catch (err) {
+    console.error("Login failed:", err);
+  }
+};
 
   return (
     <div
@@ -96,7 +98,6 @@ export default function LoginPage({ theme }) {
           <form
             className="login-form"
             onSubmit={handleSubmit}
-            noValidate
           >
             {/* Login error */}
 
@@ -134,6 +135,7 @@ export default function LoginPage({ theme }) {
               <input
                 id="login-epicor-id"
                 type="text"
+                required
                 className="input"
                 placeholder="Enter your Epicor ID"
                 value={username}
@@ -175,6 +177,7 @@ export default function LoginPage({ theme }) {
                     ? "text"
                     : "password"
                 }
+                required
                 className="input"
                 placeholder="Password"
                 value={password}
@@ -228,20 +231,7 @@ export default function LoginPage({ theme }) {
               )}
             </button>
 
-            {/* Demo credentials */}
-
-            <div
-              style={{
-                marginTop: "12px",
-                textAlign: "center",
-                fontSize: "12px",
-                opacity: 0.7,
-              }}
-            >
-              Demo credentials:{" "}
-              <strong>admin / admin</strong>
-            </div>
-
+        
             {/* Legal links */}
 
             <div className="legal-links">
